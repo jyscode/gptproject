@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT 회사 정보 검색</title>
+  </head>
+  <body>
+    <h1>ChatGPT 회사 정보 도우미</h1>
+    <div>
+      <label for="userInput">사용자 입력:</label>
+      <input type="text" id="userInput" />
+      <button onclick="sendMessage()">대화 시작</button>
+    </div>
+    <div id="conversation"></div>
+
+    <script>
+      async function sendMessage() {
+        const userInput = document.getElementById("userInput").value;
+
+        try {
+          const response = await fetch("http://localhost:3000/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userInput }),
+          });
+
+          if (!response.ok) {
+            throw new Error("서버에서 오류가 발생했습니다.");
+          }
+
+          const data = await response.json();
+          displayConversation(userInput, data.modelResponse);
+        } catch (error) {
+          console.error("에러:", error.message);
+          displayConversation(userInput, "서버에 연결 중 문제가 발생했습니다.");
+        }
+      }
+
+      function displayConversation(userInput, modelResponse) {
+        const conversationDiv = document.getElementById("conversation");
+        const conversationItem = document.createElement("div");
+        conversationItem.innerHTML = `<p><strong>사용자:</strong> ${userInput}</p>`;
+        conversationDiv.appendChild(conversationItem);
+
+        const responseItem = document.createElement("div");
+        responseItem.innerHTML = `<p><strong>모델 응답:</strong> ${modelResponse}</p>`;
+        conversationDiv.appendChild(responseItem);
+
+        // 입력창 비우기
+        document.getElementById("userInput").value = "";
+      }
+    </script>
+  </body>
+</html>
